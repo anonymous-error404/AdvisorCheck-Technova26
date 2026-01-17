@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { useAuth } from "@/lib/useAuth"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -12,19 +13,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Menu, X, User, LogOut, LayoutDashboard, Settings, Shield } from "lucide-react"
-import { createBrowserClient } from "@supabase/ssr"
-
-const supabase = createBrowserClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
 
 export function LandingNavbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [user, setUser] = useState<any>(null)
   const router = useRouter()
+  const { user, isAuthenticated, signOut } = useAuth()
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut()
+    await signOut()
     router.push("/")
-    setUser(null)
   }
 
   return (
@@ -45,7 +42,7 @@ export function LandingNavbar() {
               How It Works
             </Link>
 
-            {user ? (
+            {isAuthenticated ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm" className="gap-2 bg-transparent">

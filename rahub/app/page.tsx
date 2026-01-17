@@ -1,8 +1,4 @@
 "use client"
-
-import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
-import { createBrowserClient } from "@supabase/ssr"
 import { LandingNavbar } from "@/components/landing-navbar"
 import { LandingHero } from "@/components/landing-hero"
 import { LandingFeatures } from "@/components/landing-features"
@@ -10,33 +6,7 @@ import { LandingCTA } from "@/components/landing-cta"
 import { LandingFooter } from "@/components/landing-footer"
 import { AdvisorLeaderboard } from "@/components/advisor-leaderboard"
 
-// const supabase = createBrowserClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
-
 export default function Home() {
-  const router = useRouter()
-  // const [loading, setLoading] = useState(true)
-
-  // useEffect(() => {
-  //   const checkUser = async () => {
-  //     const {
-  //       data: { user },
-  //     } = await supabase.auth.getUser()
-  //     setLoading(false)
-
-  //     if (user) {
-  //       router.push("/dashboard")
-  //     }
-  //   }
-  //   checkUser()
-  // }, [router])
-
-  // if (loading) {
-  //   return (
-  //     <div className="min-h-screen bg-background flex items-center justify-center">
-  //       <div className="text-primary animate-pulse">Loading...</div>
-  //     </div>
-  //   )
-  // }
 
   return (
     <main className="min-h-screen bg-background">
