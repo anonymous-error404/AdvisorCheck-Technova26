@@ -166,6 +166,7 @@ export default function AdvisorProfile({ params }: { params: Promise<{ id: strin
               <FollowButton advisorId={advisor.id} showFollowerCount={true} />
               <SubscriptionButton
                 advisorId={advisor.id}
+                advisorName={advisor.full_name}
                 currentTierName={subscription?.tier_name}
                 onSubscriptionChange={handleSubscriptionChange}
               />

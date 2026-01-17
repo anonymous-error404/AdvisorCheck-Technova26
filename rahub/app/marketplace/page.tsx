@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { createBrowserClient } from "@supabase/ssr"
 import Link from "next/link"
+import { SubscriptionButton } from "@/components/subscription-button"
 
 const supabase = createBrowserClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
 
@@ -13,6 +14,8 @@ export default function Marketplace() {
   const [loading, setLoading] = useState(true)
   const [searchFilter, setSearchFilter] = useState("")
   const [compareIds, setCompareIds] = useState<string[]>([])
+  const [subscriptions, setSubscriptions] = useState<Record<string, any>>({})
+  const [investorId, setInvestorId] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchAdvisors = async () => {
@@ -23,6 +26,30 @@ export default function Marketplace() {
         if (!session) {
           router.push("/auth/login")
           return
+        }
+
+        // Fetch investor data
+        const { data: investor } = await supabase
+          .from("investors")
+          .select("id")
+          .eq("user_id", session.user.id)
+          .single()
+
+        if (investor) {
+          setInvestorId(investor.id)
+          
+          // Fetch subscriptions
+          const { data: subs } = await supabase
+            .from("investor_subscriptions")
+            .select("advisor_id, tier_name")
+            .eq("investor_id", investor.id)
+          
+          // Convert to map for easy lookup
+          const subsMap: Record<string, any> = {}
+          subs?.forEach((sub) => {
+            subsMap[sub.advisor_id] = sub
+          })
+          setSubscriptions(subsMap)
         }
 
         const { data } = await supabase
@@ -62,6 +89,22 @@ export default function Marketplace() {
     router.push("/")
   }
 
+  const refreshSubscriptions = async (advisorId: string) => {
+    if (!investorId) return
+    
+    // Refresh subscriptions for this advisor
+    const { data: subs } = await supabase
+      .from("investor_subscriptions")
+      .select("advisor_id, tier_name")
+      .eq("investor_id", investorId)
+    
+    const subsMap: Record<string, any> = {}
+    subs?.forEach((sub) => {
+      subsMap[sub.advisor_id] = sub
+    })
+    setSubscriptions(subsMap)
+  }
+
   const toggleCompare = (advisorId: string) => {
     let newIds: string[]
     if (compareIds.includes(advisorId)) {
@@ -99,9 +142,14 @@ export default function Marketplace() {
       <header className="bg-surface border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold text-primary">RA Hub Marketplace</h1>
-          <button onClick={handleLogout} className="text-text-secondary hover:text-primary transition">
-            Sign Out
-          </button>
+          <div className="flex gap-4 items-center">
+            <Link href="/subscriptions" className="text-text-secondary hover:text-primary transition">
+              My Subscriptions
+            </Link>
+            <button onClick={handleLogout} className="text-text-secondary hover:text-primary transition">
+              Sign Out
+            </button>
+          </div>
         </div>
       </header>
 
@@ -145,61 +193,76 @@ export default function Marketplace() {
               <p className="text-text-secondary">No verified advisors found</p>
             </div>
           ) : (
-            filteredAdvisors.map((advisor) => (
-              <div key={advisor.id} className="flex flex-col gap-2">
-                <Link href={`/advisor/${advisor.id}`}>
-                  <div className="bg-surface border border-border rounded-lg p-6 hover:border-primary transition cursor-pointer h-full flex flex-col flex-1">
-                    <div className="flex-1">
-                      <h3 className="text-xl font-bold text-primary mb-1">{advisor.full_name}</h3>
-                      <p className="text-text-secondary text-sm mb-2">{advisor.company_name}</p>
-                      <p className="text-xs text-text-secondary mb-4">SEBI: {advisor.sebi_number}</p>
-                      <p className="text-sm text-text-secondary mb-4 line-clamp-2">
-                        {advisor.bio || "Trading advisor"}
-                      </p>
-                    </div>
+            filteredAdvisors.map((advisor) => {
+              const subscription = subscriptions[advisor.id]
+              return (
+                <div key={advisor.id} className="flex flex-col gap-2">
+                  <Link href={`/advisor/${advisor.id}`}>
+                    <div className="bg-surface border border-border rounded-lg p-6 hover:border-primary transition cursor-pointer h-full flex flex-col flex-1">
+                      <div className="flex-1">
+                        <h3 className="text-xl font-bold text-primary mb-1">{advisor.full_name}</h3>
+                        <p className="text-text-secondary text-sm mb-2">{advisor.company_name}</p>
+                        <p className="text-xs text-text-secondary mb-4">SEBI: {advisor.sebi_number}</p>
+                        <p className="text-sm text-text-secondary mb-4 line-clamp-2">
+                          {advisor.bio || "Trading advisor"}
+                        </p>
+                      </div>
 
-                    {advisor.advisor_stats && advisor.advisor_stats.length > 0 && (
-                      <div className="grid grid-cols-2 gap-2 text-sm mb-4">
-                        <div className="bg-background rounded p-2">
-                          <div className="text-text-secondary text-xs">Win Rate</div>
-                          <div className="font-bold text-success">{advisor.advisor_stats[0].win_rate.toFixed(1)}%</div>
-                        </div>
-                        <div className="bg-background rounded p-2">
-                          <div className="text-text-secondary text-xs">Total Trades</div>
-                          <div className="font-bold text-primary">{advisor.advisor_stats[0].total_trades}</div>
-                        </div>
-                        <div className="bg-background rounded p-2">
-                          <div className="text-text-secondary text-xs">Return</div>
-                          <div
-                            className={`font-bold ${advisor.advisor_stats[0].total_return_percent >= 0 ? "text-success" : "text-danger"}`}
-                          >
-                            {advisor.advisor_stats[0].total_return_percent.toFixed(2)}%
+                      {advisor.advisor_stats && advisor.advisor_stats.length > 0 && (
+                        <div className="grid grid-cols-2 gap-2 text-sm mb-4">
+                          <div className="bg-background rounded p-2">
+                            <div className="text-text-secondary text-xs">Win Rate</div>
+                            <div className="font-bold text-success">{advisor.advisor_stats[0].win_rate.toFixed(1)}%</div>
+                          </div>
+                          <div className="bg-background rounded p-2">
+                            <div className="text-text-secondary text-xs">Total Trades</div>
+                            <div className="font-bold text-primary">{advisor.advisor_stats[0].total_trades}</div>
+                          </div>
+                          <div className="bg-background rounded p-2">
+                            <div className="text-text-secondary text-xs">Return</div>
+                            <div
+                              className={`font-bold ${
+                                advisor.advisor_stats[0].total_return_percent >= 0 ? "text-success" : "text-danger"
+                              }`}
+                            >
+                              {advisor.advisor_stats[0].total_return_percent.toFixed(2)}%
+                            </div>
+                          </div>
+                          <div className="bg-background rounded p-2">
+                            <div className="text-text-secondary text-xs">Exp</div>
+                            <div className="font-bold text-primary">{advisor.years_experience}y</div>
                           </div>
                         </div>
-                        <div className="bg-background rounded p-2">
-                          <div className="text-text-secondary text-xs">Exp</div>
-                          <div className="font-bold text-primary">{advisor.years_experience}y</div>
-                        </div>
-                      </div>
-                    )}
+                      )}
 
-                    <button className="w-full bg-primary text-background font-semibold py-2 rounded-lg hover:bg-primary-dark transition">
-                      View Profile
+                      <button className="w-full bg-primary text-background font-semibold py-2 rounded-lg hover:bg-primary-dark transition">
+                        View Profile
+                      </button>
+                    </div>
+                  </Link>
+                  <div className="flex gap-2">
+                    <div className="flex-1">
+                      <SubscriptionButton
+                        advisorId={advisor.id}
+                        advisorName={advisor.full_name}
+                        currentTierName={subscription?.tier_name}
+                        onSubscriptionChange={() => refreshSubscriptions(advisor.id)}
+                      />
+                    </div>
+                    <button
+                      onClick={() => toggleCompare(advisor.id)}
+                      className={`px-4 py-2 font-medium rounded-lg transition ${
+                        compareIds.includes(advisor.id)
+                          ? "bg-primary text-background"
+                          : "bg-text-secondary/10 text-text-secondary hover:bg-text-secondary/20"
+                      }`}
+                    >
+                      {compareIds.includes(advisor.id) ? "✓" : "Compare"}
                     </button>
                   </div>
-                </Link>
-                <button
-                  onClick={() => toggleCompare(advisor.id)}
-                  className={`py-2 font-medium rounded-lg transition ${
-                    compareIds.includes(advisor.id)
-                      ? "bg-primary text-background"
-                      : "bg-text-secondary/10 text-text-secondary hover:bg-text-secondary/20"
-                  }`}
-                >
-                  {compareIds.includes(advisor.id) ? "Remove from Compare" : "Compare"}
-                </button>
-              </div>
-            ))
+                </div>
+              )
+            })
           )}
         </div>
       </div>
