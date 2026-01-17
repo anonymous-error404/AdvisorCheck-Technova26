@@ -1,0 +1,2 @@
+-- RLS disabled for development - keeping this file for reference
+-- These policies were used when RLS was enabled
