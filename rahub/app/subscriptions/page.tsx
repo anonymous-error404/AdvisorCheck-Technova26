@@ -14,12 +14,12 @@ interface Subscription {
   tier_name: string
   status: string
   created_at: string
-  advisor: {
+  advisors: {
     id: string
     full_name: string
     company_name: string
     sebi_number: string
-  }
+  }[]
 }
 
 export default function SubscriptionsPage() {
@@ -56,7 +56,7 @@ export default function SubscriptionsPage() {
             tier_name,
             status,
             created_at,
-            advisors:advisor_id (
+            advisors!advisor_id (
               id,
               full_name,
               company_name,
@@ -131,9 +131,9 @@ export default function SubscriptionsPage() {
               <div key={sub.id} className="bg-surface border border-border rounded-lg p-6">
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
-                    <h3 className="text-xl font-bold text-primary mb-1">{sub.advisor.full_name}</h3>
-                    <p className="text-text-secondary text-sm mb-2">{sub.advisor.company_name}</p>
-                    <p className="text-xs text-text-secondary mb-4">SEBI: {sub.advisor.sebi_number}</p>
+                    <h3 className="text-xl font-bold text-primary mb-1">{sub.advisors[0]?.full_name}</h3>
+                    <p className="text-text-secondary text-sm mb-2">{sub.advisors[0]?.company_name}</p>
+                    <p className="text-xs text-text-secondary mb-4">SEBI: {sub.advisors[0]?.sebi_number}</p>
 
                     <div className="flex gap-4">
                       <div>

@@ -48,7 +48,7 @@ export default function InvestorPortfolio() {
           .select(
             `
             *,
-            advisor:advisors (
+            advisors!advisor_id (
               id,
               full_name,
               company_name,
@@ -245,8 +245,8 @@ export default function InvestorPortfolio() {
                   <CardContent className="pt-6">
                     <div className="flex justify-between items-start mb-4">
                       <div>
-                        <h3 className="text-xl font-bold text-primary">{sub.advisor.full_name}</h3>
-                        <p className="text-text-secondary text-sm">{sub.advisor.company_name}</p>
+                        <h3 className="text-xl font-bold text-primary">{sub.advisors[0]?.full_name}</h3>
+                        <p className="text-text-secondary text-sm">{sub.advisors[0]?.company_name}</p>
                         <div className="flex gap-2 mt-2">
                           <Badge className="bg-primary/20 text-primary capitalize">{sub.tier} Tier</Badge>
                           <Badge className="bg-success/20 text-success">
@@ -255,36 +255,36 @@ export default function InvestorPortfolio() {
                         </div>
                       </div>
                       <Link
-                        href={`/advisor/${sub.advisor.id}`}
+                        href={`/advisor/${sub.advisors[0]?.id}`}
                         className="px-4 py-2 bg-primary text-background rounded-lg hover:bg-primary-dark transition text-sm"
                       >
                         View Profile
                       </Link>
                     </div>
-                    {sub.advisor.advisor_stats && sub.advisor.advisor_stats.length > 0 && (
+                    {sub.advisors[0]?.advisor_stats && sub.advisors[0]?.advisor_stats.length > 0 && (
                       <div className="grid grid-cols-4 gap-2 text-sm">
                         <div className="bg-background rounded p-2">
                           <div className="text-text-secondary text-xs">Win Rate</div>
                           <div className="font-bold text-success">
-                            {sub.advisor.advisor_stats[0].win_rate?.toFixed(1)}%
+                            {sub.advisors[0]?.advisor_stats[0].win_rate?.toFixed(1)}%
                           </div>
                         </div>
                         <div className="bg-background rounded p-2">
                           <div className="text-text-secondary text-xs">Trades</div>
-                          <div className="font-bold text-primary">{sub.advisor.advisor_stats[0].total_trades}</div>
+                          <div className="font-bold text-primary">{sub.advisors[0]?.advisor_stats[0].total_trades}</div>
                         </div>
                         <div className="bg-background rounded p-2">
                           <div className="text-text-secondary text-xs">Return</div>
                           <div
-                            className={`font-bold ${(sub.advisor.advisor_stats[0].total_return_percent || 0) >= 0 ? "text-success" : "text-danger"}`}
+                            className={`font-bold ${(sub.advisors[0]?.advisor_stats[0].total_return_percent || 0) >= 0 ? "text-success" : "text-danger"}`}
                           >
-                            {sub.advisor.advisor_stats[0].total_return_percent?.toFixed(2)}%
+                            {sub.advisors[0]?.advisor_stats[0].total_return_percent?.toFixed(2)}%
                           </div>
                         </div>
                         <div className="bg-background rounded p-2">
                           <div className="text-text-secondary text-xs">Trust</div>
                           <div className="font-bold text-primary">
-                            {sub.advisor.advisor_stats[0].trust_score?.toFixed(0)}/100
+                            {sub.advisors[0]?.advisor_stats[0].trust_score?.toFixed(0)}/100
                           </div>
                         </div>
                       </div>

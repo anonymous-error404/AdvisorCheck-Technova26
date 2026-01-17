@@ -10,33 +10,33 @@ import { LandingCTA } from "@/components/landing-cta"
 import { LandingFooter } from "@/components/landing-footer"
 import { AdvisorLeaderboard } from "@/components/advisor-leaderboard"
 
-const supabase = createBrowserClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
+// const supabase = createBrowserClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
 
 export default function Home() {
   const router = useRouter()
-  const [loading, setLoading] = useState(true)
+  // const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    const checkUser = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession()
-      setLoading(false)
+  // useEffect(() => {
+  //   const checkUser = async () => {
+  //     const {
+  //       data: { user },
+  //     } = await supabase.auth.getUser()
+  //     setLoading(false)
 
-      if (session) {
-        router.push("/dashboard")
-      }
-    }
-    checkUser()
-  }, [router])
+  //     if (user) {
+  //       router.push("/dashboard")
+  //     }
+  //   }
+  //   checkUser()
+  // }, [router])
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-primary animate-pulse">Loading...</div>
-      </div>
-    )
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="min-h-screen bg-background flex items-center justify-center">
+  //       <div className="text-primary animate-pulse">Loading...</div>
+  //     </div>
+  //   )
+  // }
 
   return (
     <main className="min-h-screen bg-background">
