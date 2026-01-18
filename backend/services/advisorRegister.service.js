@@ -103,14 +103,12 @@ export class AdvisorRegistrationService {
             throw new Error("Invalid SEBI number");
         }
 
-        const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
-
         const { data: account, error } = await supabaseClient
-            .from("advisor_accounts")
+            .from("advisors_accounts")
             .insert({
                 id: advisor.id,
                 username,
-                password_hash: passwordHash,
+                password:password,
             })
             .select()
             .single();

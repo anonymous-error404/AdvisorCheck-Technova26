@@ -34,6 +34,7 @@ export class AdvisorRegistrationController {
       });
       res.status(201).json(result);
     } catch (err) {
+      console.error(err);
       res.status(400).json({ error: err.message });
     }
   };

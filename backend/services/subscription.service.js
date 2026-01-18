@@ -13,7 +13,7 @@ export class SubscriptionService {
 
     // Check duplicate subscription
     const { data: existing } = await supabaseClient
-      .from("investor_advisor_subscriptions")
+      .from("investor_advisor_join")
       .select("id")
       .eq("investor_id", investorId)
       .eq("advisor_id", advisorId)

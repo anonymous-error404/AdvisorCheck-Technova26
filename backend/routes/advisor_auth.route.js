@@ -8,4 +8,5 @@ router.post("/register/request-otp", controller.requestOtp);
 router.post("/register/verify-otp", controller.verifyOtp);
 router.post("/register/create-account", controller.createAccount);
 
+
 export default router;
