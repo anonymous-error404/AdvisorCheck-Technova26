@@ -72,5 +72,5 @@ const server = http.createServer(app);
 initMarketWS(server);
 
 server.listen(process.env.PORT, () => {
-  console.log("🚀 REST + WS server running on port 3000");
+  console.log(`🚀 REST + WS server running on port ${process.env.PORT}`);
 });

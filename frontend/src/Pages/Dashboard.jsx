@@ -2,10 +2,11 @@ import React, { useEffect, useMemo, useState } from "react";
 import supabase from "../../utils/supabase";
 import AddTrade from "../components/AddTrade";
 import LivePriceChart from "../components/LivePriceChart";
-
+import { useNavigate } from "react-router-dom";
 const ADVISOR_ID = "9430400d-0f2e-41b7-8481-9d4d347882cf";
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("active");
   const [advisor, setAdvisor] = useState(null);
 
@@ -65,7 +66,14 @@ const Dashboard = () => {
     fetchTrades();
     fetchAdvisorProfile();
   }, []);
+  const handleSignOut = () => {
+    // 🔥 clear auth data
+    localStorage.removeItem("id");
+    localStorage.removeItem("type");
 
+    // 🔁 redirect to login
+    navigate("/login");
+  };
   /* ================= FILTER BY TAB ================= */
 
   const filteredTrades = useMemo(() => {
@@ -82,7 +90,12 @@ const Dashboard = () => {
         <div className="flex gap-6 text-sm text-gray-300">
           <span>Explore</span>
           <span>Portfolio</span>
-          <span>Sign Out</span>
+          <span
+            onClick={handleSignOut}
+            className="cursor-pointer hover:text-red-400"
+          >
+            Sign Out
+          </span>
         </div>
       </header>
 
@@ -193,6 +206,9 @@ const TradeCard = ({ trade }) => {
 
           <p className="text-sm text-gray-300">
             Entry: ₹{trade.entry_price}
+          </p>
+          <p className="text-sm text-gray-300">
+            Target: ₹{trade.target_price}
           </p>
 
           <p className="text-xs text-gray-400 capitalize mt-1">

@@ -8,7 +8,9 @@ export class TradePublishController {
     try {
       const trade = req.body;
 
+      console.log(trade)
       const result = await service.publishTrade(trade);
+      console.log(result);
 
       res.json(result);
     } catch (err) {

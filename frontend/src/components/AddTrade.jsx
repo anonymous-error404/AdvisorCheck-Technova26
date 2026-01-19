@@ -336,15 +336,21 @@ const AddTrade = ({ onSave }) => {
     }
 
     try {
-      await axios.post("http://localhost:8080/api/market-data/symbol", {
+      
+      const response = await axios.post("http://localhost:8080/api/market-data/symbol", {
         symbol: form.symbol,
       });
+
+      console.log("data:", response.data);
 
       const res = await axios.get(
         "http://localhost:8080/api/market-data/ltp"
       );
+      console.log(res.data);
 
       const ltp = res.data?.ltp;
+
+      console.log("LTP:", ltp);
 
       if (!ltp) {
         alert("Failed to fetch LTP");
@@ -418,10 +424,8 @@ const AddTrade = ({ onSave }) => {
       return;
     }
 
-    if (!validatePrices()) return;
-
     const payload = {
-      advisor_id: "adv-101",
+      advisor_id: "9430400d-0f2e-41b7-8481-9d4d347882cf",
       symbol: form.symbol,
       entry_price: Number(form.entry_price),
       target_price: Number(form.target_price),
@@ -431,7 +435,9 @@ const AddTrade = ({ onSave }) => {
     };
 
     try {
-      await axios.post("/api/publish-trade", payload);
+      console.log("Publishing trade:", payload);
+      await axios.post("http://localhost:8080/api/advisor/publish-trade", payload);
+      alert("Trade published successfully");
       onSave?.();
     } catch (err) {
       console.error(err);

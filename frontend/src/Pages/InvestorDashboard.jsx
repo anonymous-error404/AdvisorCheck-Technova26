@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import supabase from "../../utils/supabase";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const InvestorDashboard = () => {
   const investorId = localStorage.getItem("id");
   const [paymentStatus, setPaymentStatus] = useState("");
   const [subscribedAdvisorIds, setSubscribedAdvisorIds] = useState([]);
+  const navigate = useNavigate();
   const fetchSubscribedAdvisorIds = async () => {
     const { data, error } = await supabase
       .from("investors_advisors_join")
@@ -243,9 +245,22 @@ const InvestorDashboard = () => {
 
   return (
     <div className="min-h-screen bg-[#0b0f14] text-white p-6">
-      <h1 className="text-2xl font-bold text-yellow-400 mb-6">
-        Investor Dashboard
-      </h1>
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold text-yellow-400 mb-6">
+          Investor Dashboard
+        </h1>
+        <button
+        onClick={() => {
+          localStorage.removeItem("id");
+          localStorage.removeItem("type");
+          navigate("/login", { replace: true });
+        }}
+        className="text-sm text-gray-300 hover:text-red-400 border border-white/10 px-4 py-2 rounded-xl"
+      >
+        Sign Out
+      </button>
+      </div>
+      
 
       {/* ================= TABS ================= */}
       <div className="flex gap-4 mb-8 items-center ">
@@ -286,35 +301,46 @@ const InvestorDashboard = () => {
           {advisors.map((a) => (
             <div
               key={a.id}
-              className="border border-white/10 rounded-xl p-6"
-
+              className="border border-white/10 rounded-xl p-6 cursor-pointer"
             >
-              <a href={`/dashboard/${a.id}`}>
-                <h2 className="text-lg font-semibold">{a.name}</h2>
-                <p className="text-sm text-gray-400">
-                  SEBI: {a.sebi_number}
-                </p>
-                {a.ranking && (
-                  <div className="mt-2 text-xs text-gray-400 space-y-1">
-                    <p>🏆 Rank: {a.ranking.rank}</p>
-                    <p>⭐ Score: {a.ranking.finalScore}</p>
-                    <p>🎯 Accuracy: {a.ranking.accuracy}%</p>
-                    <p>📈 ROI: {(a.ranking.roi * 100).toFixed(2)}%</p>
-                    <p>📊 Trades: {a.ranking.totalTrades}</p>
-                  </div>
-                )}
+              <h2 className="text-lg font-semibold">{a.name}</h2>
+              <p className="text-sm text-gray-400">
+                SEBI: {a.sebi_number}
+              </p>
 
-                <button
-                  onClick={() => subscribe(a.id)}
-                  className="mt-4 bg-yellow-400 text-black px-4 py-2 rounded-xl"
-                >
-                  Subscribe ₹499
-                </button>
-              </a>
+              {a.ranking && (
+                <div className="mt-2 text-xs text-gray-400 space-y-1">
+                  <p>🏆 Rank: {a.ranking.rank}</p>
+                  <p>⭐ Score: {a.ranking.finalScore}</p>
+                  <p>🎯 Accuracy: {a.ranking.accuracy}%</p>
+                  <p>📈 ROI: {(a.ranking.roi * 100).toFixed(2)}%</p>
+                  <p>📊 Trades: {a.ranking.totalTrades}</p>
+                </div>
+              )}
+
+              <button
+                onClick={(e) => {
+                  e.stopPropagation(); // 🔥 PREVENT NAVIGATION
+                  subscribe(a.id);
+                  console.log("Subscribing to advisor", a.id);
+                }}
+                className="mt-4 bg-yellow-400 text-black px-4 py-2 rounded-xl"
+              >
+                Subscribe ₹499
+              </button>
+              <button
+                onClick={(e) => {
+                  navigate(`/dashboard/${a.id}`);
+                }}
+                className="mt-4 bg-yellow-400 text-black px-4 py-2 rounded-xl ml-15"
+              >
+                View Profile
+              </button>
             </div>
           ))}
         </div>
       )}
+
 
       {tab === "my" && !selectedAdvisor && (
         <div className="space-y-4">

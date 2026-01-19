@@ -20,6 +20,7 @@ class MarketDataController {
         token
       });
     } catch (err) {
+      console.log(err);
       res.status(500).json({ error: err.message });
     }
   }
@@ -28,6 +29,8 @@ class MarketDataController {
   static async getLTP(req, res) {
     try {
       const data = await MarketDataService.getLTP();
+      console.log("LTP Data:", data);
+      console.log("Active Symbol:", MarketDataService.getState().activeSymbol);
       res.json({
         symbol: MarketDataService.getState().activeSymbol,
         ...data
